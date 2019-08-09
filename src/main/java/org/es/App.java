@@ -396,7 +396,31 @@ public class App
         //request.versionType(VersionType.EXTERNAL);
         client.deleteAsync(request, RequestOptions.DEFAULT,listener);
     }
+    /**
+     *删除找不到的doc
+     * @param client
+     * @throws Exception
+     */
+    private static void deleteNotExist(RestHighLevelClient client,String index) throws Exception{
+        DeleteRequest request = new DeleteRequest(index, "does_not_exist");
+        DeleteResponse deleteResponse = client.delete(
+                request, RequestOptions.DEFAULT);
+        if (deleteResponse.getResult() == DocWriteResponse.Result.NOT_FOUND) {
 
+        }
+    }
+
+    private static void deleteVersionConflict(RestHighLevelClient client,String index,String id) throws Exception{
+        try {
+            DeleteResponse deleteResponse = client.delete(
+                    new DeleteRequest(index, id).setIfSeqNo(100).setIfPrimaryTerm(2),
+                    RequestOptions.DEFAULT);
+        } catch (ElasticsearchException exception) {
+            if (exception.status() == RestStatus.CONFLICT) {
+
+            }
+        }
+    }
 
 
     /**
