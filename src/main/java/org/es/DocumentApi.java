@@ -41,12 +41,18 @@ import java.util.Map;
  * Hello world!
  *
  */
-public class App 
+public class DocumentApi
 {
+    /**
+     * @param args
+     * @throws Exception
+     */
     public static void main(String[] args) throws Exception{
         RestHighLevelClient client = getHighLevelClient();
         String index = "cdrindex";
+        index = "posts";
         String id = "Nc-rdWwBncJK9AacSI38";
+        id="1";
         synGet(client,index,id);
         //aynGet(client,index,id);
         //getNotExist(client);
@@ -54,8 +60,8 @@ public class App
         //existsRequestSynchronous(client, "posts", "1");
         //aynExistsRequest(client, "posts", "1");
         //existsSource(client,index, id);
-        //IndexResponse response = indexDoc(client, index, id);
-        //indexResposeInfo(response);
+        IndexResponse response = indexDoc(client, index, id);
+        indexResposeInfo(response);
         //synDelete(client,index, id);
         //aynDelete(client,index, id);异步删除未成功
         close(client);
@@ -65,7 +71,7 @@ public class App
      * 获取高阶api客户端
      * @return
      */
-    private static RestHighLevelClient getHighLevelClient(){
+    public static RestHighLevelClient getHighLevelClient(){
         RestHighLevelClient client = new RestHighLevelClient(
                 RestClient.builder(
                         new HttpHost("localhost", 9200, "http"))
@@ -77,7 +83,7 @@ public class App
      *关闭客户端链接
      * @param client
      */
-    private static void close(RestHighLevelClient client){
+    public static void close(RestHighLevelClient client){
         try {
             client.close();
         } catch (IOException e) {
@@ -96,15 +102,16 @@ public class App
     private static IndexResponse indexDoc(RestHighLevelClient client,String index,String id)
     throws Exception{
         String jsonString = "{" +
-                "\"user\":\"kimchy\"," +
+                "\"callerNum\":\"85264616522\"," +
                 "\"postDate\":\"2013-01-30\"," +
-                "\"message\":\"update\"" +
+                "\"serviceType\":\"1\"" +
+                "\"fee\":\"79\"" +
                 "}";
         IndexRequest request = new IndexRequest(index);
         request.id(id);
         request.source(jsonString, XContentType.JSON);
-        //request.opType(DocWriteRequest.OpType.CREATE);
-        request.opType(DocWriteRequest.OpType.INDEX);
+        request.opType(DocWriteRequest.OpType.CREATE);
+        //request.opType(DocWriteRequest.OpType.INDEX);
         request.timeout(TimeValue.timeValueSeconds(1));
         //request.timeout("1s");
         IndexResponse response = client.index(request, RequestOptions.DEFAULT);
@@ -115,7 +122,7 @@ public class App
      * indexrequest请求后返回response结果，response里包含有相关index的info
      * @param indexResponse
      */
-    private static void indexResposeInfo(IndexResponse indexResponse){
+	private static void indexResposeInfo(IndexResponse indexResponse){
         String index = indexResponse.getIndex();
         String id = indexResponse.getId();
         print(index);
@@ -178,10 +185,9 @@ public class App
         //String[] includes= {"user"};
         //request.storedFields(includes);
         GetResponse getResponse = client.get(request, RequestOptions.DEFAULT);
+        print(getResponse.toString());
         String index_ = getResponse.getIndex();
         String id_ = getResponse.getId();
-        print(index_);
-        print(id_);
         if (getResponse.isExists()) {
             long version = getResponse.getVersion();
             print(version);
@@ -468,7 +474,7 @@ public class App
         }
     }
 
-    private static void print(Object obj){
+    public static void print(Object obj){
         System.out.println("print => "+obj);
     }
 }
